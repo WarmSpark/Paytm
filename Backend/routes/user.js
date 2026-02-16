@@ -5,7 +5,7 @@ const mongoose =require("mongoose");
 const {User,Account}=require("../db")
 const Router=express.Router();
 const JWT_SECRET=require("../config")
-const authMiddleware=require("../middleware");
+const {authMiddleware}=require("../middleware");
 const { da } = require("zod/v4/locales");
 
 const SignupSchema=zod.object({
