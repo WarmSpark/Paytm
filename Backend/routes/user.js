@@ -1,10 +1,11 @@
 const express=require("express");
 const jwt=require("jsonwebtoken")
 const zod=require("zod");
-const {User}=require("../db")
+const {User,Account}=require("../db")
 const Router=express.Router();
 const JWT_SECRET=require("../config")
 const authMiddleware=require("../middleware");
+const { da } = require("zod/v4/locales");
 
 const SignupSchema=zod.object({
     username:zod.string(),
@@ -29,7 +30,18 @@ Router.post("/signup",async(req,res)=>{
             message:"user is already there"
         })
     }
-    const dbUser=await User.create(body);
+     const dbuser = await User.create({
+        username: req.body.username,
+        password: req.body.password,
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+    })
+    const userID=dbuser._id;
+    await Account.create({
+        userID,
+        balance:1+Math.random()*10000
+    })
+
     const token=jwt.sign({
         userId:dbUser._id
     },JWT_SECRET)
@@ -38,7 +50,40 @@ Router.post("/signup",async(req,res)=>{
         message:"the user is created",
         token:token
     })
+
 })
+
+const SigninBody=zod.object({
+    username:zod.string().email(),
+    password:zod.string()
+
+})
+Router.post("/signin",async(req,res)=>{
+    const {success}=SigninBody.safeParse(req.body);
+    if(!success){
+        return res.status(411).json({
+            message:"incorrect inputs"
+        })
+    }
+    const user=await User.findOne({
+        username:req.body.username,
+        password:req.body.password
+    })
+    if(user){
+        const token=jwt.sign({
+            userId:user._id
+        },JWT_SECRET)
+        res.json({
+            token:token
+        })
+        return
+    }
+    res.status(411).json({
+        message: "Error while logging in"
+    })
+})
+
+
 const UpdateBody=zod.object({
     firstName:zod.string().optional(),
     lastName:zod.string().optional(),
