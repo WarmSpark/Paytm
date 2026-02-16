@@ -1,3 +1,4 @@
-
-const JWT_Secret="Divyansh"
-module.exports=JWT_Secret
+//backend/config.js
+module.exports = {
+	JWT_SECRET: "your-jwt-secret"
+}
