@@ -1,6 +1,7 @@
 const express=require("express");
 const jwt=require("jsonwebtoken")
 const zod=require("zod");
+const mongoose =require("mongoose");
 const {User,Account}=require("../db")
 const Router=express.Router();
 const JWT_SECRET=require("../config")
@@ -82,8 +83,6 @@ Router.post("/signin",async(req,res)=>{
         message: "Error while logging in"
     })
 })
-
-
 const UpdateBody=zod.object({
     firstName:zod.string().optional(),
     lastName:zod.string().optional(),
@@ -124,9 +123,6 @@ Router.get("/bulk",async(req,res)=>{
                 _id: user._id
             }))
         })
-
-    })
-
-
+})
 
 module.exports=Router;
